@@ -1,0 +1,33 @@
+
+etcd:
+    image: microbox/etcd:latest
+    command: -name etcd
+    ports:
+        - 4001:4001
+        - 7001:7001
+    volumes:
+        - /var/etcd/:/data
+
+register:
+    build: ./register
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+        - HOST_IP=$HOST_IP
+        - ETCD_HOST=$ETCD_HOST
+
+discovery:
+    build: ./discovery
+    net: host
+    ports:
+        - 127.0.0.1:1936:1936
+    environment:
+        - ETCD_HOST=$ETCD_HOST
+
+dns:
+    build: ./dns
+    environment:
+        - ETCD_HOST=$ETCD_HOST
+        - DOMAIN=$DOMAIN
+    ports:
+        - 80:80
