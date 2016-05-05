@@ -26,6 +26,7 @@ discovery:
 
 dns:
     build: ./dns
+    net: host
     environment:
         - ETCD_HOST=$ETCD_HOST
         - DOMAIN=$DOMAIN

@@ -1,7 +1,7 @@
 var proxy = require('/usr/lib/node_modules/redbird')({port: 80});
 
-var domain = process.env["HOST_IP"]
+var domain = process.env["DOMAIN"]
 
 {% for service in services %}
-proxy.register(`dev.docker/{{service}}`, `http://${domain}:{{services[service].port}}`);
+proxy.register(`http://${domain}/{{service}}`, `http://localhost:{{services[service].port}}`);
 {% endfor %}
