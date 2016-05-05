@@ -4,4 +4,5 @@ var domain = process.env["DOMAIN"]
 
 {% for service in services %}
 proxy.register(`http://${domain}/{{service}}`, `http://localhost:{{services[service].port}}`);
+proxy.register(`http://{{service}}.${domain}`, `http://localhost:{{services[service].port}}`);
 {% endfor %}
