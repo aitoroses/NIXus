@@ -39,7 +39,6 @@ $ docker run -it -p :8000 jwilder/whoami
 Try to do a CURL:
 ```
 $ curl -L http://dev.docker/whoami
-
 $ curl -L http://dev.docker:8000
 ```
 

@@ -19,9 +19,37 @@ listen stats :1936
     stats uri /
     #stats auth Username:Password
 
+# Backends
 {% for service in services %}
-listen {{ service }}
-    bind *:{{services[service].port}}
+backend {{ service }}
+    http-check expect status 200
+    balance roundrobin
     {% for backend in services[service].backends %}
     server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
+{% endfor %}
+
+# Reverse Proxy
+frontend public
+    bind *:80
+
+    # match path rule
+    {% for service in services %}
+    acl path_{{service}} path_beg -m reg ^(\/[\{{service}}\.-]+)\/?
+    {% endfor %}
+
+    # match hostname rule
+    {% for service in services %}
+    acl host_{{service}} hdr_beg(host) -i {{service}}.
+    {% endfor %}
+
+    # Use backend if hostname or path
+    {% for service in services %}
+    use_backend {{service}} if path_{{service}} or host_{{service}}
+    {% endfor %}
+
+{% for service in services %}
+frontend {{ service }}
+    bind *:{{ services[service].port }}
+    default_backend {{ service }}
+
 {% endfor %}

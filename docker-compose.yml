@@ -23,12 +23,3 @@ discovery:
         - 127.0.0.1:1936:1936
     environment:
         - ETCD_HOST=$ETCD_HOST
-
-dns:
-    build: ./dns
-    net: host
-    environment:
-        - ETCD_HOST=$ETCD_HOST
-        - DOMAIN=$DOMAIN
-    ports:
-        - 80:80
