@@ -1,0 +1,22 @@
+{
+	"ImportPath": "github.com/aitoroses/docker-rest",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v63",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Comment": "v1.1-2-ga8d44e7",
+			"Rev": "a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd"
+		},
+		{
+			"ImportPath": "github.com/gorilla/csrf",
+			"Comment": "v1.3-4-g5827652",
+			"Rev": "58276522e5876c9497f406c0212e46f8c7b9999d"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Comment": "v1.1",
+			"Rev": "667fe4e3466a040b780561fe9b51a83a3753eefc"
+		}
+	]
+}

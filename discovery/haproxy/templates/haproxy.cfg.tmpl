@@ -34,7 +34,7 @@ frontend public
 
     # match path rule
     {% for service in services %}
-    acl path_{{service}} path_beg -m reg ^(\/[\{{service}}\.-]+)\/?
+    acl path_{{service}} path_beg -i /{{service}}
     {% endfor %}
 
     # match hostname rule
