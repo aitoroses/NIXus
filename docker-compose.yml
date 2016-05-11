@@ -27,7 +27,9 @@ discovery:
 api:
     build: ./api
     ports:
-        - 12053:12053
+        - 32854:12053
+    environment:
+        - NIXUS_12053=api
     privileged: true
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock

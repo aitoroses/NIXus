@@ -9,6 +9,5 @@ RUN cd $GOPATH/src/docker-rest && godep restore
 WORKDIR $GOPATH/src/docker-rest
 
 EXPOSE 12053
-EXPOSE 12054
 
 CMD go run main.go -p :12053

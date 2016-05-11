@@ -11,7 +11,8 @@ defaults
     option redispatch
     balance roundrobin
 
-listen stats :1936
+listen stats
+    bind *:1936
     mode http
     stats enable
     stats hide-version
@@ -47,8 +48,8 @@ frontend public
 
 {% for service in services %}
 {% for front in services[service]["frontends"] %}
-frontend {{ service }}
+frontend {{ service }}_{{ front.name }}_frontend
     bind *:{{ front.port }}
-    default_backend {{service}}_{{front.port}}_backend
+    default_backend {{ service }}_{{ front.port }}_backend
 {% endfor %}
 {% endfor %}

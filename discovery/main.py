@@ -41,12 +41,15 @@ def get_services():
 
     services = {}
 
+    for i in frontends.children:
+        service = i.key[1:].split("/")[1]
+        services[service] = dict(backends={}, frontends=[])
+
     for i in backends.children:
         service = i.key[1:].split("/")[1]
         port = i.key[1:].split("/")[2]
 
-        if service not in services:
-            endpoints = services.setdefault(service, {'backends': {}})
+        endpoints = services[service]
 
         for b in i.children:
             container = i.key[1:].split("/")[3]
@@ -54,8 +57,8 @@ def get_services():
             endpoints["backends"][port].append(dict(name=container, addr=i.value))
 
     for i in frontends.children:
-        if "frontends" not in endpoints:
-            endpoints["frontends"] = []
+        service = i.key[1:].split("/")[1]
+        endpoints = services[service]
 
         for b in i.children:
             context = b.key[1:].split("/")[2]

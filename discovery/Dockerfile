@@ -5,10 +5,10 @@ RUN apt-get install -y wget make gcc binutils python-pip python-dev libssl-dev l
 
 WORKDIR /root
 
-RUN wget http://www.haproxy.org/download/1.5/src/haproxy-1.5.1.tar.gz
-RUN tar -zxvf haproxy-1.5.1.tar.gz
+RUN wget http://www.haproxy.org/download/1.6/src/haproxy-1.6.5.tar.gz
+RUN tar -zxvf haproxy-1.6.5.tar.gz
 
-RUN cd haproxy-1.5.1 && make TARGET=generic && make install
+RUN cd haproxy-1.6.5 && make TARGET=generic && make install
 
 RUN pip install python-etcd Jinja2
 RUN touch /var/run/haproxy.pid
