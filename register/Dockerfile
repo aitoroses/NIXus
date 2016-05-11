@@ -7,8 +7,8 @@ RUN apt-get install -y wget python python-pip python-dev libssl-dev libffi-dev b
 RUN mkdir /app
 WORKDIR /app
 
-RUN wget https://github.com/jwilder/docker-gen/releases/download/0.3.3/docker-gen-linux-amd64-0.3.3.tar.gz
-RUN tar xvzf docker-gen-linux-amd64-0.3.3.tar.gz -C /usr/local/bin
+RUN wget https://github.com/jwilder/docker-gen/releases/download/0.7.1/docker-gen-linux-amd64-0.7.1.tar.gz
+RUN tar xvzf docker-gen-linux-amd64-0.7.1.tar.gz -C /usr/local/bin
 
 RUN pip install python-etcd
 

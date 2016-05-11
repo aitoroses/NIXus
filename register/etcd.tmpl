@@ -23,19 +23,26 @@ try:
 except (etcd.EtcdKeyNotFound, KeyError):
     client.write("/backends", None, dir=True)
 
+
+
 {{ $local := . }}
-{{range $key, $value := .}}
+{{ range $key, $value := .}}
 {{ $addrLen := len $value.Addresses }}
-{{ if eq $addrLen 1 }}
-{{ with $address := index $value.Addresses 0 }}
+{{ range $address := $value.Addresses }}
 
 {{ if $address.HostPort}}
+{{ with $subdomain := printf "NIXUS_%s" $address.Port }}
+{{ if contains $value.Env $subdomain }}
+# {{ $subdomain }}
+
 # {{ $value.Name }}
+client.write("/backends/{{ $value.Image.Repository}}/{{ $address.Port }}/{{printf "%.*s" 12 $value.ID}}", "{{ $local.Env.HOST_IP }}:{{ $address.HostPort }}", ttl=15)
+client.write("/frontends/{{ $value.Image.Repository}}/{{ $address.Port }}", "{{ index $value.Env $subdomain }}", ttl=15)
 
-client.write("/backends/{{ $value.Image.Repository}}/{{printf "%.*s" 12 $value.ID}}", "{{ $local.Env.HOST_IP }}:{{ $address.HostPort }}", ttl=15)
-client.write("/backends/{{ $value.Image.Repository}}/port", "{{ $address.Port }}", ttl=15)
+{{ end }}
+{{ end }}
 
 {{ end }}
 {{ end }}
 {{end}}
-{{end}}
+

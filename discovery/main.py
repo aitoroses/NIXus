@@ -35,21 +35,35 @@ def get_services():
 
     host, port = get_etcd_addr()
     client = etcd.Client(host=host, port=int(port))
+    
     backends = client.read('/backends', recursive = True)
+    frontends = client.read('/frontends', recursive = True)
+
     services = {}
 
     for i in backends.children:
+        service = i.key[1:].split("/")[1]
+        port = i.key[1:].split("/")[2]
 
-        if i.key[1:].count("/") != 2:
-            continue
+        if service not in services:
+            endpoints = services.setdefault(service, {'backends': {}})
 
-        ignore, service, container = i.key[1:].split("/")
-        endpoints = services.setdefault(service, dict(port="", backends=[]))
-        if container == "port":
-            endpoints["port"] = i.value
-            continue
-        endpoints["backends"].append(dict(name=container, addr=i.value))
+        for b in i.children:
+            container = i.key[1:].split("/")[3]
+            endpoints["backends"][port] = []
+            endpoints["backends"][port].append(dict(name=container, addr=i.value))
+
+    for i in frontends.children:
+        if "frontends" not in endpoints:
+            endpoints["frontends"] = []
+
+        for b in i.children:
+            context = b.key[1:].split("/")[2]
+            endpoints["frontends"].append(dict(port=context, name=b.value))
+
     return services
+
+
 
 def generate_config(services):
     template = env.get_template('haproxy.cfg.tmpl')

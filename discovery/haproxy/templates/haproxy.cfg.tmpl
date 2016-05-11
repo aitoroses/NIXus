@@ -21,35 +21,34 @@ listen stats :1936
 
 # Backends
 {% for service in services %}
-backend {{ service }}
+{% for port in services[service]["backends"] %}
+# service {{service}}:{{port}}
+backend {{ service }}_{{ port }}_backend
     http-check expect status 200
     balance roundrobin
-    {% for backend in services[service].backends %}
+    {% for backend in services[service]["backends"][port] %}
     server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
+{% endfor %}
 {% endfor %}
 
 # Reverse Proxy
 frontend public
     bind *:80
 
-    # match path rule
     {% for service in services %}
-    acl path_{{service}} path_beg -i /{{service}}
+    {% for front in services[service]["frontends"] %}
+    # service {{front.name}}:{{front.port}}
+    acl path_{{front.name}} path_reg -i ^\/{{front.name}}(\/.*?)?$
+    acl host_{{front.name}} hdr_beg(host) -i {{front.name}}.
+    use_backend {{service}}_{{front.port}}_backend if path_{{front.name}} or host_{{front.name}}
+    
     {% endfor %}
-
-    # match hostname rule
-    {% for service in services %}
-    acl host_{{service}} hdr_beg(host) -i {{service}}.
-    {% endfor %}
-
-    # Use backend if hostname or path
-    {% for service in services %}
-    use_backend {{service}} if path_{{service}} or host_{{service}}
     {% endfor %}
 
 {% for service in services %}
+{% for front in services[service]["frontends"] %}
 frontend {{ service }}
-    bind *:{{ services[service].port }}
-    default_backend {{ service }}
-
+    bind *:{{ front.port }}
+    default_backend {{service}}_{{front.port}}_backend
+{% endfor %}
 {% endfor %}
