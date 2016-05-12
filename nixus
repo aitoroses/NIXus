@@ -24,6 +24,7 @@ stop() {
 }
 
 uninstall() {
+    stop
     rm /usr/local/bin/nixus
     echo "To clean completely: $ rm -rf $(pwd)"
 }
