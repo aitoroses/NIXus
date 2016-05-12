@@ -59,7 +59,7 @@ func copyHeader(dst, src http.Header) {
 	}
 }
 
-func createTcpHandler(e string) http.Handler {
+func createTCPHandler(e string) http.Handler {
 	u, err := url.Parse(e)
 	if err != nil {
 		log.Fatal(err)
@@ -78,7 +78,7 @@ func createHandler(e string) http.Handler {
 	)
 
 	if strings.Contains(e, "http") {
-		h = createTcpHandler(e)
+		h = createTCPHandler(e)
 	} else {
 		if _, err := os.Stat(e); err != nil {
 			if os.IsNotExist(err) {

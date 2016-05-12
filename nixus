@@ -34,6 +34,11 @@ ps() {
     docker inspect -f "{{.Id}} {{.Config.Env}}" $(docker ps -a | awk 'NR>1 {print $1}') | grep --color=always "NIXUS_[^ ]*"
 }
 
+# Open a terminal in an specific containers
+bash() {
+    docker exec -it nixus_$1_1 bash
+}
+
 
 case "$1" in
         start)
@@ -56,6 +61,9 @@ case "$1" in
             ;;
         ps)
             ps
+            ;;
+        bash)
+            bash $2
             ;;
         *)
             echo $"Usage: $0 {start|stop|restart|build|uninstall}"

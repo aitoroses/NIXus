@@ -45,9 +45,15 @@ def get_services():
         service = i.key[1:].split("/")[1]
         services[service] = dict(backends={}, frontends=[])
 
+
     for i in backends.children:
         service = i.key[1:].split("/")[1]
         port = i.key[1:].split("/")[2]
+
+        try:
+            directive_rewrite_url = client.read('/directives/' + service + "/rewrite_url").value == "true"
+        except:
+            directive_rewrite_url = False
 
         endpoints = services[service]
 
@@ -55,7 +61,7 @@ def get_services():
             try:
                 container = i.key[1:].split("/")[3]
                 endpoints["backends"][port] = []
-                endpoints["backends"][port].append(dict(name=container, addr=i.value))
+                endpoints["backends"][port].append(dict(name=container, addr=i.value, rewrite=directive_rewrite_url))
             except:
                 continue
 

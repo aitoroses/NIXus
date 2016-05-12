@@ -29,6 +29,7 @@ api:
     ports:
         - 32854:12053
     environment:
+        - NIXUS_REWRITE_URL=true
         - NIXUS_12053=api
     privileged: true
     volumes:

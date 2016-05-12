@@ -32,6 +32,12 @@ backend {{ service }}_{{ port }}_backend
     balance roundrobin
     {% for backend in services[service]["backends"][port] %}
     server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
+    
+    {% if services[service]["backends"][port][0]["rewrite"] %}
+    # Rewrite URL
+    reqrep ^([^\ ]*\ )\/([^\/]*)(.*)     \1\3
+    {% endif %}
+    
 {% endfor %}
 {% endfor %}
 
