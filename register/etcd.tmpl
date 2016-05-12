@@ -20,10 +20,10 @@ client = etcd.Client(host=host, port=int(port))
 
 try:
     backends = client.read("/backends")
+    frontends = client.read("/frontends")
 except (etcd.EtcdKeyNotFound, KeyError):
     client.write("/backends", None, dir=True)
-
-
+    client.write("/frontends", None, dir=True)
 
 {{ $local := . }}
 {{ range $key, $value := .}}
