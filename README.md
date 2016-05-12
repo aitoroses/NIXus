@@ -27,11 +27,10 @@ Get **NIXus** running:
 $ nixus start
 ```
 
-Run a hello world container two times, and specify a NIXUS_{PORT}:
+Run a hello world container two times (cluster), and specify a NIXUS_{PORT}:
 ```
-$ docker run -it -p :8000 -e NIXUS_8000=whoami-app jwilder/whoami
-$ docker run -it -p :8000 -e NIXUS_8000=whoami-app jwilder/whoami
-
+docker run -d -it -p :8000 -e NIXUS_8000=whoami-app jwilder/whoami
+docker run -d -it -p :8000 -e NIXUS_8000=whoami-app jwilder/whoami
 ```
 
 Try to do a CURL:
@@ -84,9 +83,9 @@ so that each container is clusterizable on itself.
 
 Like in the example above, we can just do:
 
-* `docker run -it -p :8000 NIXUS_8000=hello-app hello`
-* `docker run -it -p :8000 NIXUS_8000=hello-app hello`
-* `docker run -it -p :8000 NIXUS_8000=hello-app hello`
+* `docker run -d -it -p :8000 NIXUS_8000=hello-app hello`
+* `docker run -d -it -p :8000 NIXUS_8000=hello-app hello`
+* `docker run -d -it -p :8000 NIXUS_8000=hello-app hello`
 
 The same container will be spawned 3 times and NIXus will handle load balancing by default.
 
