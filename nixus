@@ -1,5 +1,10 @@
 #! /bin/bash
 
+RESTORE_PATH=$(pwd)
+
+NIXUS_HOME=~/.nixus
+cd $NIXUS_HOME
+
 source ./env.sh
 
 build() {
@@ -16,6 +21,11 @@ logs() {
 
 stop() {
     docker-compose stop
+}
+
+uninstall() {
+    rm /usr/local/bin/nixus
+    echo "To clean completely: $ rm -rf $(pwd)"
 }
 
 
@@ -41,3 +51,5 @@ case "$1" in
             exit 1
  
 esac
+
+cd RESTORE_PATH

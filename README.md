@@ -18,7 +18,7 @@ Install [Docker Toolbox](https://www.docker.com/products/docker-toolbox) and con
 
 Run the following command:
 ```
-curl -L https://raw.githubusercontent.com/aitoroses/NIXus/master/install.sh
+curl -L https://raw.githubusercontent.com/aitoroses/NIXus/master/install.sh | bash
 ```
 
 Get **NIXus** running:
@@ -73,10 +73,6 @@ NIXus will recognize that information and make the container discoverable throug
 * `http://domain.com:8000`
 * `http://domain.com/hello-app`
 * `http://hello-app.domain.com`
-
-
-
-
 
 
 ---
