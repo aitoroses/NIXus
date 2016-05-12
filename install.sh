@@ -7,8 +7,8 @@ echo "Wait while installing the NIXus Platform \n"
 
 git clone https://github.com/aitoroses/NIXus $NIXUS_HOME
 
-chmod +x nixus
-ln -s nixus /usr/local/bin/nixus
+chmod +x ./nixus
+cp ./nixus /usr/local/bin/nixus
 
 # Build the containers
 echo "We are building the docker images for you :)"

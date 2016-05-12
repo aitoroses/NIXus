@@ -20,7 +20,7 @@ logs() {
 }
 
 stop() {
-    docker-compose stop
+    docker-compose down
 }
 
 uninstall() {
@@ -39,17 +39,19 @@ case "$1" in
             ;;
          
         build)
-            status build
+            build
             ;;
         restart)
             stop
             start
             ;;
-         
+        uninstall)
+            uninstall
+            ;;
         *)
-            echo $"Usage: $0 {start|stop|restart|build}"
+            echo $"Usage: $0 {start|stop|restart|build|uninstall}"
             exit 1
  
 esac
 
-cd RESTORE_PATH
+cd $RESTORE_PATH
