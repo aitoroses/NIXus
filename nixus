@@ -29,6 +29,11 @@ uninstall() {
     echo "To clean completely: $ rm -rf $(pwd)"
 }
 
+# Get containers that have a proper NIXUS_<PORT>
+ps() {
+    docker inspect -f "{{.Id}} {{.Config.Env}}" $(docker ps -a | awk 'NR>1 {print $1}') | grep "NIXUS_[^ ]*"
+}
+
 
 case "$1" in
         start)
@@ -48,6 +53,9 @@ case "$1" in
             ;;
         uninstall)
             uninstall
+            ;;
+        ps)
+            ps
             ;;
         *)
             echo $"Usage: $0 {start|stop|restart|build|uninstall}"
