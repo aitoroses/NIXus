@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER Jason Wilder <jason@influxdb.com>
 
-RUN apt-get update
+RUN apt-get update -y
 RUN apt-get install -y wget python python-pip python-dev libssl-dev libffi-dev bash
 
 RUN mkdir /app

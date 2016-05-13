@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 
-RUN apt-get update
+RUN apt-get update -y
 RUN apt-get install -y wget make gcc binutils python-pip python-dev libssl-dev libffi-dev bash
 
 WORKDIR /root
