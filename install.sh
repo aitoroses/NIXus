@@ -1,7 +1,6 @@
 # curl -L https://raw.githubusercontent.com/aitoroses/NIXus/master/install.sh | bash
 
 NIXUS_HOME=~/.nixus
-cd $NIXUS_HOME
 
 echo ""
 echo "Wait while installing the NIXus Platform"
@@ -9,6 +8,7 @@ echo ""
 
 git clone https://github.com/aitoroses/NIXus $NIXUS_HOME
 
+cd $NIXUS_HOME
 chmod +x ./nixus
 cp ./nixus /usr/local/bin/nixus
 
