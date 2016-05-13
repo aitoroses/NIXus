@@ -29,16 +29,19 @@ uninstall() {
     echo "To clean completely: $ rm -rf $(pwd)"
 }
 
+logs() {
+    docker-compose logs $2
+}
+
 # Get containers that have a proper NIXUS_<PORT>
 ps() {
     docker inspect -f "{{.Id}} {{.Config.Env}}" $(docker ps -a | awk 'NR>1 {print $1}') | grep --color=always "NIXUS_[^ ]*"
 }
 
 # Open a terminal in an specific containers
-bash() {
+ssh() {
     docker exec -it nixus_$1_1 bash
 }
-
 
 case "$1" in
         start)
@@ -62,11 +65,14 @@ case "$1" in
         ps)
             ps
             ;;
-        bash)
-            bash $2
+        ssh)
+            ssh $2
+            ;;
+        logs)
+            logs $2
             ;;
         *)
-            echo $"Usage: $0 {start|stop|restart|build|uninstall}"
+            echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs}"
             exit 1
  
 esac

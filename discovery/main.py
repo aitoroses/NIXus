@@ -51,9 +51,9 @@ def get_services():
         port = i.key[1:].split("/")[2]
 
         try:
-            directive_rewrite_url = client.read('/directives/' + service + "/rewrite_url").value == "true"
+            directive_rewrite_url = client.read('/directives/' + service + "/rewrite_url").value != "false"
         except:
-            directive_rewrite_url = False
+            directive_rewrite_url = True
 
         endpoints = services[service]
 

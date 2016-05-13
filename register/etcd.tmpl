@@ -39,8 +39,8 @@ except (etcd.EtcdKeyNotFound, KeyError):
 # {{ $value.Name }}
 client.write("/backends/{{ $value.Image.Repository }}/{{ $address.Port }}/{{printf "%.*s" 12 $value.ID}}", "{{ $local.Env.HOST_IP }}:{{ $address.HostPort }}", ttl=15)
 client.write("/frontends/{{ $value.Image.Repository }}/{{ $address.Port }}", "{{ index $value.Env $subdomain }}", ttl=15)
-{{ if contains $value.Env "NIXUS_REWRITE_URL" }}
-client.write("/directives/{{ $value.Image.Repository }}/rewrite_url", True, ttl=15)
+{{ if contains $value.Env "NIXUS_REWRITE_URL_DISABLE" }}
+client.write("/directives/{{ $value.Image.Repository }}/rewrite_url", False, ttl=15)
 {{ end }}
 
 {{ end }}

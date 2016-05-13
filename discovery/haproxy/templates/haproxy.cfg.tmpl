@@ -23,11 +23,11 @@ listen stats
     stats uri /
     #stats auth Username:Password
 
-# Backends
+# Backends (Path Context)
 {% for service in services %}
 {% for port in services[service]["backends"] %}
 # service {{service}}:{{port}}
-backend {{ service }}_{{ port }}_backend
+backend {{ service }}_{{ port }}_backend_path
     http-check expect status 200
     balance roundrobin
     {% for backend in services[service]["backends"][port] %}
@@ -35,8 +35,22 @@ backend {{ service }}_{{ port }}_backend
     
     {% if services[service]["backends"][port][0]["rewrite"] %}
     # Rewrite URL
-    reqrep ^([^\ ]*\ )\/([^\/]*)(.*)     \1\3
+    reqrep ^([^\ ]*\ \/)([^\/]*)\/?(.*)[\ ](HTTP.*)     \1\3\ \4
     {% endif %}
+    
+{% endfor %}
+{% endfor %}
+
+# Backends (Subdomain Context)
+{% for service in services %}
+{% for port in services[service]["backends"] %}
+# service {{service}}:{{port}}
+backend {{ service }}_{{ port }}_backend_subdomain
+    http-check expect status 200
+    balance roundrobin
+    {% for backend in services[service]["backends"][port] %}
+    server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
+    
     
 {% endfor %}
 {% endfor %}
@@ -50,8 +64,8 @@ frontend public
     # service {{front.name}}:{{front.port}}
     acl path_{{front.name}} path_reg -i ^\/{{front.name}}(\/.*?)?$
     acl host_{{front.name}} hdr_beg(host) -i {{front.name}}.
-    use_backend {{service}}_{{front.port}}_backend if path_{{front.name}} or host_{{front.name}}
-    
+    use_backend {{service}}_{{front.port}}_backend_subdomain if host_{{front.name}}
+    use_backend {{service}}_{{front.port}}_backend_path if path_{{front.name}}
     {% endfor %}
     {% endfor %}
 
@@ -59,6 +73,6 @@ frontend public
 {% for front in services[service]["frontends"] %}
 frontend {{ service }}_{{ front.name }}_frontend
     bind *:{{ front.port }}
-    default_backend {{ service }}_{{ front.port }}_backend
+    default_backend {{ service }}_{{ front.port }}_backend_subdomain
 {% endfor %}
 {% endfor %}
