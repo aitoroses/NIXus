@@ -24,7 +24,7 @@ discovery:
     environment:
         - ETCD_HOST=$ETCD_HOST
 
-api:
+docker-api:
     build: ./api
     ports:
         - 32854:12053
@@ -33,3 +33,15 @@ api:
     privileged: true
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
+
+cadvisor:
+    image: google/cadvisor:latest
+    volumes:
+        - /:/rootfs:ro
+        - /var/run:/var/run:rw
+        - /sys:/sys:ro
+        - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+        - 32888:8080
+    environment:
+        - NIXUS_8080=cadvisor
