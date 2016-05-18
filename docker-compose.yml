@@ -61,8 +61,8 @@ elasticsearch:
     image: elasticsearch:latest
     command: elasticsearch -Des.network.host=0.0.0.0
     ports:
-        - "9200:9200"
-        - "9300:9300"
+        - 9200:9200
+        - 9300:9300
     volumes_from:
         - elastic_data
 
@@ -88,6 +88,8 @@ kibana:
     volumes:
         - ./elk/kibana/config/:/opt/kibana/config/
     ports:
-        - 5601:5601
+        - 32889:5601
     links:
         - elasticsearch
+    environment:
+        - NIXUS_5601=kibana
