@@ -13,6 +13,9 @@ RUN cd haproxy-1.6.5 && make TARGET=generic && make install
 RUN pip install python-etcd Jinja2
 RUN touch /var/run/haproxy.pid
 
+COPY rsyslog.d/49-haproxy.conf /etc/rsyslog.d/49-haproxy.conf
+COPY rsyslog.d/rotate.conf /etc/logrotate.d/haproxy
+
 ADD . /app
 
 WORKDIR /app
@@ -20,4 +23,3 @@ WORKDIR /app
 EXPOSE 1936
 
 CMD ["python", "main.py"]
-

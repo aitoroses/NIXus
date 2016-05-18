@@ -1,4 +1,5 @@
 
+# ETCD instance
 etcd:
     image: microbox/etcd:latest
     command: -name etcd
@@ -8,6 +9,7 @@ etcd:
     volumes:
         - /var/etcd/:/data
 
+# Container registering in ETCD
 register:
     build: ./register
     volumes:
@@ -16,6 +18,7 @@ register:
         - HOST_IP=$HOST_IP
         - ETCD_HOST=$ETCD_HOST
 
+# HaProxy Container with discovery
 discovery:
     build: ./discovery
     net: host
@@ -23,17 +26,21 @@ discovery:
         - 127.0.0.1:1936:1936
     environment:
         - ETCD_HOST=$ETCD_HOST
+    volumes:
+        - /var/log
 
-docker-api:
+# Docker REST API
+api:
     build: ./api
     ports:
         - 32854:12053
     environment:
-        - NIXUS_12053=api
+        - NIXUS_12053=dockerapi
     privileged: true
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
 
+# Monitor
 cadvisor:
     image: google/cadvisor:latest
     volumes:
@@ -45,3 +52,42 @@ cadvisor:
         - 32888:8080
     environment:
         - NIXUS_8080=cadvisor
+    command: -storage_driver="elasticsearch" -alsologtostderr=true -storage_driver_es_host="http://elasticsearch:9200"
+    links:
+        - elasticsearch
+
+# ELK STACK
+elasticsearch:
+    image: elasticsearch:latest
+    command: elasticsearch -Des.network.host=0.0.0.0
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+    volumes_from:
+        - elastic_data
+
+elastic_data:
+    image: busybox
+    volumes:
+        - /user/share/elasticsearch/data
+        - /user/share/elasticsearch/plugins
+        - /user/share/elasticsearch/config
+
+logstash:
+    image: logstash:latest
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+        - ./elk/logstash/config:/etc/logstash/conf.d
+    ports:
+        - 5000:5000
+    links:
+        - elasticsearch
+
+kibana:
+    build: elk/kibana/
+    volumes:
+        - ./elk/kibana/config/:/opt/kibana/config/
+    ports:
+        - 5601:5601
+    links:
+        - elasticsearch

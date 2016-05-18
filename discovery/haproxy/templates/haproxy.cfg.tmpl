@@ -3,13 +3,16 @@ global
     maxconn 4096
     pidfile /var/run/haproxy.pid
 
+    # Forward syslog
+    log     127.0.0.1   local1
+
 defaults
     log     global
     mode    http
     option  httplog
     option  dontlognull
     retries 3
-    option redispatch
+    option  redispatch
     timeout connect  5000
     timeout client  10000
     timeout server  10000
@@ -32,12 +35,12 @@ backend {{ service }}_{{ port }}_backend_path
     balance roundrobin
     {% for backend in services[service]["backends"][port] %}
     server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
-    
+
     {% if services[service]["backends"][port][0]["rewrite"] %}
     # Rewrite URL
     reqrep ^([^\ ]*\ \/)([^\/]*)\/?(.*)[\ ](HTTP.*)     \1\3\ \4
     {% endif %}
-    
+
 {% endfor %}
 {% endfor %}
 
@@ -50,8 +53,8 @@ backend {{ service }}_{{ port }}_backend_subdomain
     balance roundrobin
     {% for backend in services[service]["backends"][port] %}
     server {{ backend.name }} {{ backend.addr }} check inter 2s rise 3 fall 2{% endfor %}
-    
-    
+
+
 {% endfor %}
 {% endfor %}
 
