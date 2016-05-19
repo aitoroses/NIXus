@@ -12,11 +12,17 @@ build() {
 }
 
 start() {
-    docker-compose up -d
-} 
-
-logs() {
-    docker-compose logs
+    case $1 in
+        monitor)
+            docker-compose up -d cadvisor elasticsearch elastic_data logstash kibana
+            ;;
+        all)
+            docker-compose up -d
+            ;;
+        *)
+            docker-compose up -d etcd register discovery api
+            ;;
+    esac
 }
 
 stop() {
@@ -30,7 +36,7 @@ uninstall() {
 }
 
 logs() {
-    docker-compose logs $2
+    docker-compose logs $1
 }
 
 # Get containers that have a proper NIXUS_<PORT>
@@ -45,13 +51,13 @@ ssh() {
 
 case "$1" in
         start)
-            start
+            start $2
             ;;
-         
+
         stop)
             stop
             ;;
-         
+
         build)
             build
             ;;
@@ -74,7 +80,7 @@ case "$1" in
         *)
             echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs}"
             exit 1
- 
+
 esac
 
 cd $RESTORE_PATH
