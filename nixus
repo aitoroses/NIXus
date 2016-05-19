@@ -26,7 +26,26 @@ start() {
 }
 
 stop() {
-    docker-compose down
+    case $1 in
+        monitor)
+            docker-compose stop cadvisor elasticsearch elastic_data logstash kibana
+            docker-compose rm --all
+            ;;
+        *)
+            docker-compose down
+            ;;
+    esac
+}
+
+pause() {
+    case $1 in
+        monitor)
+            docker-compose stop cadvisor elasticsearch elastic_data logstash kibana
+            ;;
+        *)
+            docker-compose stop
+            ;;
+    esac
 }
 
 uninstall() {
@@ -49,15 +68,17 @@ ssh() {
     docker exec -it nixus_$1_1 bash
 }
 
-case "$1" in
+case $1 in
         start)
             start $2
             ;;
 
         stop)
-            stop
+            stop $2
             ;;
-
+        pause)
+            pause $2
+            ;;
         build)
             build
             ;;
@@ -78,7 +99,7 @@ case "$1" in
             logs $2
             ;;
         *)
-            echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs}"
+            echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs|pause}"
             exit 1
 
 esac
