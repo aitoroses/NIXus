@@ -98,8 +98,12 @@ case $1 in
         logs)
             logs $2
             ;;
+        update)
+            git pull
+            bash install.sh
+            ;;
         *)
-            echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs|pause}"
+            echo $"Usage: $0 {start|stop|restart|build|uninstall|ps|ssh|logs|pause|update}"
             exit 1
 
 esac
