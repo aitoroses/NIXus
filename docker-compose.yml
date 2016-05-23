@@ -29,6 +29,15 @@ discovery:
     volumes:
         - /var/log
 
+# HaProxy Info Data
+discovery_api:
+    build: ./discovery/services/proxy_info
+    ports:
+        - 36093:5000
+    environment:
+        - NIXUS_5000=proxy_info
+        - ETCD_HOST=$ETCD_HOST
+
 # Docker REST API
 api:
     build: ./api
