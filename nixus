@@ -20,7 +20,7 @@ start() {
             docker-compose up -d
             ;;
         *)
-            docker-compose up -d etcd register discovery api discovery_api
+            docker-compose up -d etcd register discovery api discovery_api discovery_info
             ;;
     esac
 }

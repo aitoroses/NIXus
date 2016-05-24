@@ -38,6 +38,15 @@ discovery_api:
         - NIXUS_5001=proxy_info
         - ETCD_HOST=$ETCD_HOST
 
+# HaProxy Info Client
+discovery_info:
+    build: ./discovery/services/proxy_info_client
+    ports:
+        - 36094:3000
+    environment:
+        - NIXUS_3000=proxy_info_client
+        - HOST_IP=$HOST_IP
+
 # Docker REST API
 api:
     build: ./api
