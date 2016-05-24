@@ -33,9 +33,9 @@ discovery:
 discovery_api:
     build: ./discovery/services/proxy_info
     ports:
-        - 36093:5000
+        - 36093:5001
     environment:
-        - NIXUS_5000=proxy_info
+        - NIXUS_5001=proxy_info
         - ETCD_HOST=$ETCD_HOST
 
 # Docker REST API
