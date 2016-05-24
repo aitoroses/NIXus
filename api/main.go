@@ -1,129 +1,137 @@
 package main
 
 import (
-	"flag"
-	"io"
-	"log"
-	"net"
-	"net/http"
-	"net/http/httputil"
-	"net/url"
-	"os"
-	"strings"
-	"github.com/gorilla/csrf"
-	"io/ioutil"
-	"fmt"
-	"github.com/gorilla/securecookie"
+    "flag"
+    "fmt"
+    "io"
+    "io/ioutil"
+    "log"
+    "net"
+    "net/http"
+    "net/http/httputil"
+    "net/url"
+    "os"
+    "strings"
+
+    "github.com/gorilla/csrf"
+    "github.com/gorilla/securecookie"
 )
 
 var (
-	endpoint = flag.String("e", "/var/run/docker.sock", "Dockerd endpoint")
-	addr     = flag.String("p", ":12053", "Address and port to serve")
-	authKey  []byte
-	authKeyFile = "authKey.dat"
+    endpoint    = flag.String("e", "/var/run/docker.sock", "Dockerd endpoint")
+    addr        = flag.String("p", ":12053", "Address and port to serve")
+    authKey     []byte
+    authKeyFile = "authKey.dat"
 )
 
 type UnixHandler struct {
-	path string
+    path string
 }
 
 func (h *UnixHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	conn, err := net.Dial("unix", h.path)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	c := httputil.NewClientConn(conn, nil)
-	defer c.Close()
+    conn, err := net.Dial("unix", h.path)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        log.Println(err)
+        return
+    }
+    c := httputil.NewClientConn(conn, nil)
+    defer c.Close()
 
-	res, err := c.Do(r)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	defer res.Body.Close()
+    res, err := c.Do(r)
+    if err != nil {
+        w.WriteHeader(http.StatusInternalServerError)
+        log.Println(err)
+        return
+    }
+    defer res.Body.Close()
 
-	copyHeader(w.Header(), res.Header)
-	if _, err := io.Copy(w, res.Body); err != nil {
-		log.Println(err)
-	}
+    copyHeader(w.Header(), res.Header)
+    if _, err := io.Copy(w, res.Body); err != nil {
+        log.Println(err)
+    }
 }
 
 func copyHeader(dst, src http.Header) {
-	for k, vv := range src {
-		for _, v := range vv {
-			dst.Add(k, v)
-		}
-	}
+    for k, vv := range src {
+        for _, v := range vv {
+            dst.Add(k, v)
+        }
+    }
 }
 
 func createTCPHandler(e string) http.Handler {
-	u, err := url.Parse(e)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return httputil.NewSingleHostReverseProxy(u)
+    u, err := url.Parse(e)
+    if err != nil {
+        log.Fatal(err)
+    }
+    return httputil.NewSingleHostReverseProxy(u)
 }
 
 func createUnixHandler(e string) http.Handler {
-	return &UnixHandler{e}
+    return &UnixHandler{e}
 }
 
 func createHandler(e string) http.Handler {
-	var (
-		mux         = http.NewServeMux()
-		h           http.Handler
-	)
+    var (
+        mux = http.NewServeMux()
+        h   http.Handler
+    )
 
-	if strings.Contains(e, "http") {
-		h = createTCPHandler(e)
-	} else {
-		if _, err := os.Stat(e); err != nil {
-			if os.IsNotExist(err) {
-				log.Fatalf("unix socket %s does not exist", e)
-			}
-			log.Fatal(err)
-		}
-		h = createUnixHandler(e)
-	}
+    if strings.Contains(e, "http") {
+        h = createTCPHandler(e)
+    } else {
+        if _, err := os.Stat(e); err != nil {
+            if os.IsNotExist(err) {
+                log.Fatalf("unix socket %s does not exist", e)
+            }
+            log.Fatal(err)
+        }
+        h = createUnixHandler(e)
+    }
 
-	// Use existing csrf authKey if present or generate a new one.
-	dat, err := ioutil.ReadFile(authKeyFile)
-	if err != nil {
-		fmt.Println(err)
-		authKey = securecookie.GenerateRandomKey(32)
-		err := ioutil.WriteFile(authKeyFile, authKey, 0644)
-		if err != nil {
-			fmt.Println("unable to persist auth key", err)
-		}
-	} else {
-		authKey = dat
-	}
+    // Use existing csrf authKey if present or generate a new one.
+    dat, err := ioutil.ReadFile(authKeyFile)
+    if err != nil {
+        fmt.Println(err)
+        authKey = securecookie.GenerateRandomKey(32)
+        err := ioutil.WriteFile(authKeyFile, authKey, 0644)
+        if err != nil {
+            fmt.Println("unable to persist auth key", err)
+        }
+    } else {
+        authKey = dat
+    }
 
-	CSRF := csrf.Protect(
-		authKey,
-		csrf.HttpOnly(false),
-		csrf.Secure(false),
-	)
+    CSRF := csrf.Protect(
+        authKey,
+        csrf.HttpOnly(false),
+        csrf.Secure(false),
+    )
 
-	mux.Handle("/", h)
-	return CSRF(csrfWrapper(mux))
+    mux.Handle("/", h)
+    return CSRF(csrfWrapper(corsWrapper(mux)))
 }
 
 func csrfWrapper(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-CSRF-Token", csrf.Token(r))
-		h.ServeHTTP(w, r)
-	})
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("X-CSRF-Token", csrf.Token(r))
+        h.ServeHTTP(w, r)
+    })
+}
+
+func corsWrapper(h http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        h.ServeHTTP(w, r)
+    })
 }
 
 func main() {
-	flag.Parse()
+    flag.Parse()
 
-	handler := createHandler(*endpoint)
-	if err := http.ListenAndServe(*addr, handler); err != nil {
-		log.Fatal(err)
-	}
+    handler := createHandler(*endpoint)
+    if err := http.ListenAndServe(*addr, handler); err != nil {
+        log.Fatal(err)
+    }
 }
