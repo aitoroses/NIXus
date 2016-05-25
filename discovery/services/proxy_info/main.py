@@ -55,7 +55,8 @@ def get_services():
         for b in i.children:
             try:
                 container = i.key[1:].split("/")[3]
-                endpoints["backends"][port] = []
+                if not port in endpoints["backends"]:
+                    endpoints["backends"][port] = []
                 endpoints["backends"][port].append(dict(name=container, addr=i.value, rewrite=directive_rewrite_url))
             except:
                 continue

@@ -35,7 +35,7 @@ def get_services():
 
     host, port = get_etcd_addr()
     client = etcd.Client(host=host, port=int(port))
-    
+
     backends = client.read('/backends', recursive = True)
     frontends = client.read('/frontends', recursive = True)
 
@@ -60,7 +60,8 @@ def get_services():
         for b in i.children:
             try:
                 container = i.key[1:].split("/")[3]
-                endpoints["backends"][port] = []
+                if not port in endpoints["backends"]:
+                    endpoints["backends"][port] = []
                 endpoints["backends"][port].append(dict(name=container, addr=i.value, rewrite=directive_rewrite_url))
             except:
                 continue
