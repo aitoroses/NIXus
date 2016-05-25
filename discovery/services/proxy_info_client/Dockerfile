@@ -1,11 +1,12 @@
-FROM mhart/alpine-node
+FROM golang:1.6.2-alpine
 
-WORKDIR /app
+RUN mkdir -p $GOPATH/src/docker-proxy-client
+ADD ./ $GOPATH/src/docker-proxy-client
 
-COPY app /app
+RUN cd $GOPATH/src/docker-proxy-client
 
-RUN npm install
+WORKDIR $GOPATH/src/docker-proxy-client
 
 EXPOSE 3000
 
-CMD ["node", "src/app.js"]
+CMD go run main.go

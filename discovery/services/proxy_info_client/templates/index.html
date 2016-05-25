@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>A static page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://use.fontawesome.com/e5690aa34a.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="public/css.css">
+</head>
+
+<body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#"><i class="fa fa-cloud"></i> Nixus</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/">Services</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </nav>
+
+    <div class="container">
+        {{range $index, $element := .}}
+        <div class="panel panel-default">
+            <div class="panel-heading">{{$index}}</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="panel panel-success">
+                            <div class="panel-heading">
+                                <strong><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Frontend</strong>
+                            </div>
+                            <div class="panel-body">
+
+                                    <table class="panel-table__servers table table-striped table-hover">
+                                        <tr>
+                                            <td><em>Name</em></td>
+                                            <td><em>Port</em></td>
+                                            <td><em>Links</em></td>
+                                        </tr>
+                                        {{range $element.Frontends}}
+                                        <tr>
+                                            <td>{{.Name}}</td>
+                                            <td>{{.Port}}</td>
+                                            <td>
+                                                <a href="" class="f-link" data-type="subdomain" data-name={{.Name}}>sub.</a>
+                                                <a href="" class="f-link" data-type="path" data-name={{.Name}}>/path</a>
+                                                <a href="" class="f-link" data-type="port" data-port={{.Port}}>:port</a>
+                                            </td>
+                                        </tr>
+                                        {{end}}
+                                    </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <strong><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Backend</strong>
+                            </div>
+                            <div class="panel-body">
+                                <table class="panel-table__servers table table-striped table-hover">
+                                    <tr>
+                                        <td><em>Port</em></td>
+                                        <td><em>Address</em></td>
+                                        <td><em>Name</em></td>
+                                        <td><em>Rewrite</em></td>
+                                        <td><em>Proccess</em></td>
+                                    </tr>
+                                    {{range $i, $el := $element.Backends}}
+                                        {{range $el }}
+                                        <tr>
+                                            <td>{{$i}}</td>
+                                            <td>{{.Addr}}</td>
+                                            <td>{{.Name}}</td>
+                                            <td>{{.Rewrite}}</td>
+                                            <td>{{.GetProccess}}</td>
+                                        </tr>
+                                        {{end}}
+                                    {{end}}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
+    </div>
+</body>
+<script>
+$( document ).ready(function() {
+    var hostname = null;
+    var getHostname = function(){
+        if (hostname){
+            return hostname;
+        } else {
+            return $(location).attr('hostname');
+        }
+    }
+    $('.f-link').each(function(){
+        var target = $(this).data('name');
+        var type = $(this).data('type');
+        var port = $(this).data('port');
+
+        var url = "http://"
+
+        switch (type) {
+            case "subdomain":
+                url = url + target + "." + getHostname()
+                break;
+            case "path":
+                url = url + getHostname() + "/" + target
+                break;
+            case "port":
+                url = url + getHostname() + ":" + port
+                break;
+            default:
+                break;
+        }
+
+        $(this).attr("href", url);
+    })
+});
+</script>
+</html>
